@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A food or drink item on the restaurant menu",
+      "type": "object",
+      "properties": {
+        "cat": { "type": "string", "description": "Menu category", "maxLength": 60 },
+        "name": { "type": "string", "description": "Name of the item", "maxLength": 100 },
+        "price": { "type": "number", "description": "Price in USD" },
+        "img": { "type": "string", "description": "Emoji or base64 image data", "maxLength": 250000 },
+        "promo": { "type": "boolean", "description": "Whether this item is featured as a promotion" },
+        "desc": { "type": "string", "description": "Promotional item description", "maxLength": 200 },
+        "o": { "type": "number", "description": "Display order index" }
+      },
+      "required": ["cat", "name", "price"]
+    },
+    "Sale": {
+      "title": "Sale",
+      "description": "Completed sales order record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Sale ID", "maxLength": 64 },
+        "table": { "type": "string", "description": "Table name or number", "maxLength": 30 },
+        "method": { "type": "string", "description": "Payment method (Card, Cash, KHQR)", "maxLength": 30 },
+        "tel": { "type": "string", "description": "Customer phone number", "maxLength": 20 },
+        "total": { "type": "number", "description": "Total amount in USD" },
+        "tip": { "type": "number", "description": "Tip amount in USD" },
+        "sub": { "type": "number", "description": "Subtotal in USD" },
+        "tax": { "type": "number", "description": "Tax in USD" },
+        "rate": { "type": "number", "description": "Exchange rate (riel per dollar)" },
+        "date": { "type": "string", "description": "Date YYYY-MM-DD", "maxLength": 20 },
+        "ts": { "type": "number", "description": "Timestamp in milliseconds" },
+        "time": { "type": "string", "description": "Time string", "maxLength": 20 },
+        "items": { "type": "array", "description": "Array of ordered items with quantities and totals" }
+      },
+      "required": ["table", "method", "total", "ts"]
+    },
+    "GuestOrder": {
+      "title": "GuestOrder",
+      "description": "Mobile guest order placed from a table",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Order ID", "maxLength": 64 },
+        "code": { "type": "string", "description": "4-character order code", "maxLength": 10 },
+        "table": { "type": "string", "description": "Assigned table", "maxLength": 30 },
+        "pay": { "type": "string", "description": "Payment choice (cod or khqr)", "maxLength": 20 },
+        "payStatus": { "type": "string", "description": "Payment status (pending, matched, mismatch, cod)", "maxLength": 30 },
+        "payNote": { "type": "string", "description": "Note regarding payment match/mismatch", "maxLength": 200 },
+        "proof": { "type": "string", "description": "Base64 payment screenshot", "maxLength": 250000 },
+        "items": { "type": "array", "description": "Array of ordered items" },
+        "total": { "type": "number", "description": "Total amount in USD" },
+        "rate": { "type": "number", "description": "Exchange rate" },
+        "tel": { "type": "string", "description": "Guest phone number", "maxLength": 20 },
+        "tgUser": { "type": "string", "description": "Telegram username", "maxLength": 50 },
+        "note": { "type": "string", "description": "Note for the kitchen", "maxLength": 200 },
+        "ts": { "type": "number", "description": "Creation timestamp in milliseconds" },
+        "date": { "type": "string", "description": "Date string", "maxLength": 20 },
+        "time": { "type": "string", "description": "Time string", "maxLength": 20 },
+        "status": { "type": "string", "description": "Order status (new, confirmed, declined)", "maxLength": 30 },
+        "reason": { "type": "string", "description": "Reason for decline or note", "maxLength": 200 },
+        "receipt": { "type": "object", "description": "Receipt object sent back to guest" }
+      },
+      "required": ["id", "code", "total", "status", "ts"]
+    },
+    "PosDoc": {
+      "title": "PosDoc",
+      "description": "POS configuration or asset document",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Restaurant name", "maxLength": 100 },
+        "promoMsg": { "type": "string", "description": "Promotional banner headline", "maxLength": 100 },
+        "promoLink": { "type": "string", "description": "Promotion link URL", "maxLength": 300 },
+        "rate": { "type": "number", "description": "Exchange rate" },
+        "pinA": { "type": "string", "description": "Admin hashed PIN", "maxLength": 128 },
+        "pinS": { "type": "string", "description": "Staff hashed PIN", "maxLength": 128 },
+        "qrName": { "type": "string", "description": "KHQR account name", "maxLength": 100 },
+        "img": { "type": "string", "description": "Image data for KHQR or advertisement picture", "maxLength": 300000 }
+      }
+    }
+  },
+  "firestore": {
+    "/items/{itemId}": {
+      "schema": "MenuItem",
+      "description": "Menu items catalog"
+    },
+    "/sales/{saleId}": {
+      "schema": "Sale",
+      "description": "Completed sales transactions and order receipts"
+    },
+    "/guestorders/{orderId}": {
+      "schema": "GuestOrder",
+      "description": "Guest mobile table orders"
+    },
+    "/pos/{docId}": {
+      "schema": "PosDoc",
+      "description": "POS restaurant settings, ad picture, and KHQR payment code"
+    }
+  }
+}

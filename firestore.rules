@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Default deny global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Menu Items: Readable by all (guests and staff need to see the menu)
+    match /items/{itemId} {
+      allow read: if true;
+      allow create, update: if isValidId(itemId)
+        && incoming().name is string && incoming().name.size() <= 100
+        && incoming().cat is string && incoming().cat.size() <= 60
+        && incoming().price is number && incoming().price >= 0;
+      allow delete: if isValidId(itemId);
+    }
+
+    // Sales: Records of completed transactions
+    match /sales/{saleId} {
+      allow read: if true;
+      allow create: if isValidId(saleId)
+        && incoming().table is string && incoming().table.size() <= 30
+        && incoming().total is number && incoming().total >= 0;
+      allow update, delete: if isValidId(saleId);
+    }
+
+    // Guest Orders: Created by guests, updated by staff (confirmed, declined, receipt, discounts)
+    match /guestorders/{orderId} {
+      allow read: if true;
+      allow create: if isValidId(orderId)
+        && incoming().id is string
+        && incoming().code is string
+        && incoming().total is number && incoming().total >= 0;
+      allow update: if isValidId(orderId);
+      allow delete: if isValidId(orderId);
+    }
+
+    // POS Configuration (settings, ad, khqr)
+    match /pos/{docId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(docId);
+    }
+  }
+}
